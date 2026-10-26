@@ -37,12 +37,19 @@ const config = () => configs[section];
 
 function showError(error) {
   const message = error?.message || String(error);
-  $('message').textContent = `تعذر تنفيذ الطلب: ${message}`;
-  $('message').classList.remove('hidden');
+  const target = $('shell').classList.contains('hidden') ? $('login-message') : $('message');
+  target.textContent = `تعذر تنفيذ الطلب: ${message}`;
+  target.classList.remove('hidden');
+}
+
+function setAuthenticated(authenticated) {
+  $('login').classList.toggle('hidden', authenticated);
+  $('shell').classList.toggle('hidden', !authenticated);
 }
 
 function clearError() {
   $('message').classList.add('hidden');
+  $('login-message').classList.add('hidden');
 }
 
 async function load() {
@@ -135,4 +142,30 @@ document.querySelectorAll('.tab').forEach((button) => button.addEventListener('c
 $('refresh').addEventListener('click', load);
 $('add').addEventListener('click', () => openEditor());
 $('editor-form').addEventListener('submit', save);
-load();
+$('logout').addEventListener('click', async () => {
+  await db.auth.signOut();
+  setAuthenticated(false);
+});
+$('login-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  clearError();
+  const { error } = await db.auth.signInWithPassword({
+    email: $('email').value.trim(),
+    password: $('password').value,
+  });
+  if (error) {
+    showError(error);
+    return;
+  }
+  setAuthenticated(true);
+  await load();
+});
+
+async function start() {
+  const { data } = await db.auth.getSession();
+  const authenticated = Boolean(data.session);
+  setAuthenticated(authenticated);
+  if (authenticated) await load();
+}
+
+start();
