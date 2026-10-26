@@ -7,13 +7,27 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="shell">
+  <section id="login" class="login-card">
+    <p class="eyebrow">مسار العلم</p>
+    <h1>دخول لوحة الإدارة</h1>
+    <p>استخدمي حساب Supabase الإداري للوصول إلى البيانات.</p>
+    <section id="login-message" class="message hidden"></section>
+    <form id="login-form">
+      <label for="email">البريد الإلكتروني</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">كلمة المرور</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button class="button primary" type="submit">تسجيل الدخول</button>
+    </form>
+  </section>
+  <main id="shell" class="shell hidden">
     <header class="topbar">
       <div>
         <p class="eyebrow">مسار العلم</p>
         <h1>لوحة الإدارة</h1>
       </div>
       <button id="refresh" class="button secondary">تحديث البيانات</button>
+      <button id="logout" class="button secondary">تسجيل الخروج</button>
     </header>
     <section id="message" class="message hidden"></section>
     <nav class="tabs" aria-label="أقسام الإدارة">
