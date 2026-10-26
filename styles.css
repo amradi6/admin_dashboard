@@ -7,6 +7,10 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; background: linear-gradient(135deg, #f8f5ff, #ece5ff); }
 .shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 64px; }
+.login-card { width: min(420px, calc(100% - 32px)); margin: 10vh auto; padding: 28px; border: 1px solid #e1d9f5; border-radius: 20px; background: rgba(255,255,255,.9); box-shadow: 0 16px 45px rgba(80, 57, 145, .12); }
+.login-card h1 { margin-bottom: 10px; font-size: 28px; }
+.login-card p:not(.eyebrow) { color: #746d86; }
+.login-card .button { width: 100%; margin-top: 20px; }
 .topbar, .section-head { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .topbar { margin-bottom: 26px; }
 .eyebrow { margin: 0 0 6px; color: #6554c0; font-size: 13px; font-weight: 700; }
