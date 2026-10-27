@@ -183,16 +183,16 @@ document.querySelectorAll('.tab').forEach((button) => button.addEventListener('c
   section = button.dataset.section;
   load();
 }));
-$('table-wrap').addEventListener('click', handleTableAction);
-$('refresh').addEventListener('click', () => load());
-$('add').addEventListener('click', () => openEditor());
-$('editor-form').addEventListener('submit', save);
-$('cancel-editor').addEventListener('click', closeEditor);
-$('logout').addEventListener('click', async () => {
+if ($('table-wrap')) $('table-wrap').addEventListener('click', handleTableAction);
+if ($('refresh')) $('refresh').addEventListener('click', () => load());
+if ($('add')) $('add').addEventListener('click', () => openEditor());
+if ($('editor-form')) $('editor-form').addEventListener('submit', save);
+if ($('cancel-editor')) $('cancel-editor').addEventListener('click', closeEditor);
+if ($('logout')) $('logout').addEventListener('click', async () => {
   await db.auth.signOut();
   setAuthenticated(false);
 });
-$('login-form').addEventListener('submit', async (event) => {
+if ($('login-form')) $('login-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   clearError();
   const { error } = await db.auth.signInWithPassword({
