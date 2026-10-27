@@ -3,20 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1ff">
   <title>لوحة إدارة مسار العلم</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#content">انتقل إلى المحتوى</a>
   <section id="login" class="login-card">
     <p class="eyebrow">مسار العلم</p>
     <h1>دخول لوحة الإدارة</h1>
     <p>استخدمي حساب Supabase الإداري للوصول إلى البيانات.</p>
-    <section id="login-message" class="message hidden"></section>
+    <section id="login-message" class="message hidden" aria-live="polite"></section>
     <form id="login-form">
       <label for="email">البريد الإلكتروني</label>
-      <input id="email" type="email" autocomplete="username" required>
+      <input id="email" name="email" type="email" autocomplete="username" required>
       <label for="password">كلمة المرور</label>
-      <input id="password" type="password" autocomplete="current-password" required>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
       <button class="button primary" type="submit">تسجيل الدخول</button>
     </form>
   </section>
@@ -29,13 +32,13 @@
       <button id="refresh" class="button secondary">تحديث البيانات</button>
       <button id="logout" class="button secondary">تسجيل الخروج</button>
     </header>
-    <section id="message" class="message hidden"></section>
+    <section id="message" class="message hidden" aria-live="polite"></section>
     <nav class="tabs" aria-label="أقسام الإدارة">
       <button class="tab active" data-section="students">الطالبات</button>
       <button class="tab" data-section="guardians">أولياء الأمور</button>
       <button class="tab" data-section="instructors">المعلمات</button>
     </nav>
-    <section class="content">
+    <section id="content" class="content">
       <div class="section-head">
         <div>
           <h2 id="section-title">الطالبات</h2>
@@ -43,7 +46,7 @@
         </div>
         <button id="add" class="button primary">إضافة</button>
       </div>
-      <div id="loading" class="loading">جارٍ تحميل البيانات...</div>
+      <div id="loading" class="loading" role="status" aria-live="polite">جارٍ تحميل البيانات…</div>
       <div id="empty" class="empty hidden">لا توجد بيانات بعد. استخدمي زر «إضافة» لإنشاء أول سجل.</div>
       <div id="table-wrap" class="table-wrap hidden"></div>
     </section>
@@ -53,8 +56,8 @@
       <h2 id="editor-title">إضافة سجل</h2>
       <div id="fields"></div>
       <div class="dialog-actions">
-        <button value="cancel" class="button secondary">إلغاء</button>
-        <button value="save" class="button primary">حفظ</button>
+        <button id="cancel-editor" type="button" class="button secondary">إلغاء</button>
+        <button id="save-editor" value="save" type="submit" class="button primary">حفظ</button>
       </div>
     </form>
   </dialog>
