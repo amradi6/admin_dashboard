@@ -3,19 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f1ff">
   <title>لوحة إدارة مسار العلم</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#content">انتقل إلى المحتوى</a>
   <section id="login" class="login-card">
     <p class="eyebrow">مسار العلم</p>
     <h1>دخول لوحة الإدارة</h1>
+    <p>استخدمي حساب Supabase الإداري للوصول إلى البيانات.</p>
     <section id="login-message" class="message hidden"></section>
     <form id="login-form">
       <label for="email">البريد الإلكتروني</label>
-      <input id="email" type="email" autocomplete="username" required>
+      <input id="email" name="email" type="email" autocomplete="username" required>
       <label for="password">كلمة المرور</label>
-      <input id="password" type="password" autocomplete="current-password" required>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
       <button class="button primary" type="submit">تسجيل الدخول</button>
     </form>
   </section>

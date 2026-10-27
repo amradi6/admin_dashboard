@@ -31,6 +31,10 @@ const configs = {
 let section = 'students';
 let rows = [];
 let editingId = null;
+const cache = new Map();
+let loadSequence = 0;
+let dataLoading = false;
+let saving = false;
 
 const $ = (id) => document.getElementById(id);
 const config = () => configs[section];
@@ -54,16 +58,30 @@ function clearError() {
 
 async function load() {
   clearError();
-  $('loading').classList.remove('hidden');
-  $('empty').classList.add('hidden');
-  $('table-wrap').classList.add('hidden');
-  const { data, error } = await db.from(config().table).select('*').order('name');
+  const cachedRows = cache.get(section);
+  if (cachedRows) {
+    rows = cachedRows;
+    render();
+  } else {
+    $('loading').classList.remove('hidden');
+    $('empty').classList.add('hidden');
+    $('table-wrap').classList.add('hidden');
+  }
+  dataLoading = true;
+  $('refresh').disabled = true;
+  const requestSequence = ++loadSequence;
+  const fields = ['id', ...config().columns.map(([key]) => key)].join(',');
+  const { data, error } = await db.from(config().table).select(fields).order('name');
+  if (requestSequence !== loadSequence) return;
+  dataLoading = false;
+  $('refresh').disabled = false;
   $('loading').classList.add('hidden');
   if (error) {
     showError(error);
     return;
   }
   rows = data || [];
+  cache.set(section, rows);
   render();
 }
 
@@ -85,8 +103,6 @@ function render() {
   }).join('');
   $('table-wrap').innerHTML = `<table><thead><tr>${head}<th>إجراءات</th></tr></thead><tbody>${body}</tbody></table>`;
   $('table-wrap').classList.remove('hidden');
-  $('table-wrap').querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openEditor(b.dataset.edit)));
-  $('table-wrap').querySelectorAll('[data-delete]').forEach((b) => b.addEventListener('click', () => remove(b.dataset.delete)));
 }
 
 function openEditor(id = null) {
@@ -101,21 +117,35 @@ function openEditor(id = null) {
 
 async function save(event) {
   event.preventDefault();
+  if (event.submitter?.value !== 'save' || saving) return;
+  saving = true;
+  $('save-editor').disabled = true;
+  $('cancel-editor').disabled = true;
+  $('save-editor').textContent = 'جارٍ الحفظ…';
   const payload = {};
   config().columns.forEach(([key]) => {
     const value = new FormData($('editor-form')).get(key)?.toString().trim() || null;
     payload[key] = value;
   });
   const request = editingId
-    ? db.from(config().table).update(payload).eq('id', editingId)
-    : db.from(config().table).insert(payload);
-  const { error } = await request;
+    ? db.from(config().table).update(payload).eq('id', editingId).select().single()
+    : db.from(config().table).insert(payload).select().single();
+  const { data, error } = await request;
+  saving = false;
+  $('save-editor').disabled = false;
+  $('cancel-editor').disabled = false;
+  $('save-editor').textContent = 'حفظ';
   if (error) {
     showError(error);
     return;
   }
   $('editor').close();
-  await load();
+  rows = editingId
+    ? rows.map((row) => row.id === editingId ? data : row)
+    : [...rows, data];
+  rows.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'ar'));
+  cache.set(section, rows);
+  render();
 }
 
 async function remove(id) {
@@ -125,7 +155,9 @@ async function remove(id) {
     showError(error);
     return;
   }
-  await load();
+  rows = rows.filter((row) => row.id !== id);
+  cache.set(section, rows);
+  render();
 }
 
 function escapeHtml(value) {
@@ -133,15 +165,29 @@ function escapeHtml(value) {
 }
 function escapeAttr(value) { return escapeHtml(value); }
 
+function closeEditor() {
+  if (!saving) $('editor').close();
+}
+
+function handleTableAction(event) {
+  const editButton = event.target.closest('[data-edit]');
+  const deleteButton = event.target.closest('[data-delete]');
+  if (editButton) openEditor(editButton.dataset.edit);
+  if (deleteButton) remove(deleteButton.dataset.delete);
+}
+
 document.querySelectorAll('.tab').forEach((button) => button.addEventListener('click', () => {
+  if (button.dataset.section === section || dataLoading || saving) return;
   document.querySelectorAll('.tab').forEach((item) => item.classList.remove('active'));
   button.classList.add('active');
   section = button.dataset.section;
   load();
 }));
-$('refresh').addEventListener('click', load);
+$('table-wrap').addEventListener('click', handleTableAction);
+$('refresh').addEventListener('click', () => load());
 $('add').addEventListener('click', () => openEditor());
 $('editor-form').addEventListener('submit', save);
+$('cancel-editor').addEventListener('click', closeEditor);
 $('logout').addEventListener('click', async () => {
   await db.auth.signOut();
   setAuthenticated(false);
